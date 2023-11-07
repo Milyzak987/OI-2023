@@ -16,14 +16,13 @@ bool sort1(Lecture &a, Lecture &b) {
 
 vector<int> ans(500002);
 
-
-int norm(vector<Lecture> intv, int n) {
+int norm(vector<Lecture> lectures, int n) {
     int res = -1, last = 0, j = 0;
     for (int i = 0; i < n; i++) {
-        if (intv[i].start >= last) {
-            last = intv[i].end;
+        if (lectures[i].start >= last) {
+            last = lectures[i].end;
             res++;
-            ans[j] = intv[i].index;
+            ans[j] = lectures[i].index;
             j++;
         }
     }
@@ -32,6 +31,9 @@ int norm(vector<Lecture> intv, int n) {
 }
 
 int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
     int n;
     cin >> n;
     vector<Lecture> lectures(500002);
@@ -79,15 +81,15 @@ int main() {
         }
     }
     int res1 = norm(lectures, n);
-    if(res1 >= res){
+    if (res1 > res) {
         cout << res1 << "\n";
-        // for(int i = 1; i <= res1; i++){
-        //     cout << ans[i] << " " << ans[0] << "\n";
-        // }
+        for(int i = 1; i <= res1; i++){
+            cout << ans[i] << " " << ans[0] << "\n";
+        }
     } else {
         cout << res << "\n";
-        // for(int i = 0; i < res; i++){
-        //     cout << good[i].index << " " << reserve[i].index << "\n";
-        // }
+        for(int i = 0; i < res; i++){
+            cout << good[i].index << " " << reserve[i].index << "\n";
+        }
     }
 }
