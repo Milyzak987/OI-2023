@@ -3,19 +3,28 @@
 #include <vector>
 using namespace std;
 
-bool sort1(pair<int, int> &a, pair<int, int> &b) {
-    if (a.second == b.second) {
-        return a.first > b.first;
+struct Lecture {
+    int start, end, index;
+};
+
+bool sort1(Lecture &a, Lecture &b) {
+    if (a.end == b.end) {
+        return a.start > b.start;
     }
-    return a.second < b.second;
+    return a.end < b.end;
 }
 
-int norm(vector<pair<int, int>> intv, int n) {
-    int res = 0, last = 0;
+vector<int> ans(500002);
+
+
+int norm(vector<Lecture> intv, int n) {
+    int res = -1, last = 0, j = 0;
     for (int i = 0; i < n; i++) {
-        if (intv[i].first >= last) {
-            last = intv[i].second;
+        if (intv[i].start >= last) {
+            last = intv[i].end;
             res++;
+            ans[j] = intv[i].index;
+            j++;
         }
     }
 
@@ -25,9 +34,10 @@ int norm(vector<pair<int, int>> intv, int n) {
 int main() {
     int n;
     cin >> n;
-    vector<pair<int, int>> lectures(500002);
+    vector<Lecture> lectures(500002);
     for (int i = 0; i < n; i++) {
-        cin >> lectures[i].first >> lectures[i].second;
+        cin >> lectures[i].start >> lectures[i].end;
+        lectures[i].index = i + 1;
     }
     if (n == 1) {
         cout << 0;
@@ -35,39 +45,49 @@ int main() {
     }
     sort(lectures.begin(), lectures.begin() + n, sort1);
 
-    vector<pair<int, int>> good(500002);
-    vector<pair<int, int>> reserve(500002);
+    vector<Lecture> good(500002);
+    vector<Lecture> reserve(500002);
     good[0] = lectures[0];
     reserve[0] = lectures[1];
 
-    int last1 = good[0].second, last2 = reserve[0].second, res = 1, j = 0;
+    int last1 = good[0].end, last2 = reserve[0].end, res = 1, j = 0;
     for (int i = 2; i < n; i++) {
-        if (lectures[i].first >= last1) {
-            if (lectures[i].first >= last2) {
+        if (lectures[i].start >= last1) {
+            if (lectures[i].start >= last2) {
                 j++;
                 good[j] = lectures[i];
-                last1 = good[j - 1].second;
+                last1 = good[j - 1].end;
                 i++;
-                while (lectures[i].first < last1 && i != n) i++;
+                while (lectures[i].start < last1 && i != n) i++;
                 if (i == n) break;
                 reserve[j] = lectures[i];
-                last2 = reserve[j].second;
-                last1 = good[j].second;
+                last2 = reserve[j].end;
+                last1 = good[j].end;
                 res++;
             } else {
                 j++;
                 reserve[j] = lectures[i];
-                last1 = max(reserve[j - 1].second, good[j - 1].second);
+                last1 = max(reserve[j - 1].end, good[j - 1].end);
                 i++;
-                while (lectures[i].first < last1 && i != n) i++;
+                while (lectures[i].start < last1 && i != n) i++;
                 if (i == n) break;
                 good[j] = lectures[i];
-                last2 = good[j].second;
-                last1 = good[j].second;
+                last2 = good[j].end;
+                last1 = good[j].end;
                 res++;
             }
         }
     }
     int res1 = norm(lectures, n);
-    cout << max(res, res1 - 1);
+    if(res1 >= res){
+        cout << res1 << "\n";
+        // for(int i = 1; i <= res1; i++){
+        //     cout << ans[i] << " " << ans[0] << "\n";
+        // }
+    } else {
+        cout << res << "\n";
+        // for(int i = 0; i < res; i++){
+        //     cout << good[i].index << " " << reserve[i].index << "\n";
+        // }
+    }
 }
