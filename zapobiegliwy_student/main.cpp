@@ -10,55 +10,64 @@ bool sort1(pair<int, int> &a, pair<int, int> &b) {
     return a.second < b.second;
 }
 
-bool sort2(pair<int, int> &a, pair<int, int> &b) {
-    if (a.second == b.second) {
-        return a.first < b.first;
-    }
-    return a.second < b.second;
-}
-
-int check(vector<pair<int, int>> intv, int n){
-    vector<pair<int, int>> good(500002);
-    good[0] = make_pair(0, 0);
-    int res1 = 0, res2 = 0, last = 0, left = 0, right = intv[0].first, j = 0, minend = 500002;
-    for (int i = 0; i <= n; i++) {
+int norm(vector<pair<int, int>> intv, int n) {
+    int res = 0, last = 0;
+    for (int i = 0; i < n; i++) {
         if (intv[i].first >= last) {
             last = intv[i].second;
-            res1++;
-            j++;
-            good[j] = intv[i];
-            if (minend <= intv[i].first) {
-                res2++;
-            }
-            minend = 500002;
-            left = good[j - 1].second;
-        } else if (intv[i].first >= left)
-            minend = min(intv[i].second, minend);
+            res++;
+        }
     }
-    return max(res1 - 2, res2);
+
+    return res;
 }
 
-vector<pair<int, int>> intv(500002, pair<int, int>(500001, 500001));
-
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
     int n;
     cin >> n;
+    vector<pair<int, int>> lectures(500002);
+    for (int i = 0; i < n; i++) {
+        cin >> lectures[i].first >> lectures[i].second;
+    }
     if (n == 1) {
         cout << 0;
         return 0;
     }
-    for (int i = 0; i < n; i++) {
-        cin >> intv[i].first >> intv[i].second;
+    sort(lectures.begin(), lectures.begin() + n, sort1);
+
+    vector<pair<int, int>> good(500002);
+    vector<pair<int, int>> reserve(500002);
+    good[0] = lectures[0];
+    reserve[0] = lectures[1];
+
+    int last1 = good[0].second, last2 = reserve[0].second, res = 1, j = 0;
+    for (int i = 2; i < n; i++) {
+        if (lectures[i].first >= last1) {
+            if (lectures[i].first >= last2) {
+                j++;
+                good[j] = lectures[i];
+                last1 = good[j - 1].second;
+                i++;
+                while (lectures[i].first < last1 && i != n) i++;
+                if (i == n) break;
+                reserve[j] = lectures[i];
+                last2 = reserve[j].second;
+                last1 = good[j].second;
+                res++;
+            } else {
+                j++;
+                reserve[j] = lectures[i];
+                last1 = max(reserve[j - 1].second, good[j - 1].second);
+                i++;
+                while (lectures[i].first < last1 && i != n) i++;
+                if (i == n) break;
+                good[j] = lectures[i];
+                last2 = good[j].second;
+                last1 = good[j].second;
+                res++;
+            }
+        }
     }
-    sort(intv.begin(), intv.begin() + n, sort1);
-    int res1 = check(intv, n);
-    sort(intv.begin(), intv.begin() + n, sort2);
-    int res2 = check(intv, n);
-
-    cout << max(res1, res2);
-
-    return 0;
+    int res1 = norm(lectures, n);
+    cout << max(res, res1 - 1);
 }
