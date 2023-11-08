@@ -1,20 +1,23 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+
 using namespace std;
+
+const int MAXN = 500002;
 
 struct Lecture {
     int start, end, index;
 };
 
-bool sort1(Lecture &a, Lecture &b) {
+bool comp(const Lecture &a, const Lecture &b) {
     if (a.end == b.end) {
         return a.start > b.start;
     }
     return a.end < b.end;
 }
 
-vector<int> ans(500002);
+vector<int> ans(MAXN);
 
 int norm(vector<Lecture> lectures, int n) {
     int res = -1, last = 0, j = 0;
@@ -31,24 +34,20 @@ int norm(vector<Lecture> lectures, int n) {
 }
 
 int main() {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(NULL);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
     int n;
     cin >> n;
-    vector<Lecture> lectures(500002);
+    vector<Lecture> lectures(MAXN);
     for (int i = 0; i < n; i++) {
         cin >> lectures[i].start >> lectures[i].end;
         lectures[i].index = i + 1;
     }
-    if (n == 1) {
-        cout << 0;
-        return 0;
-    }
-    sort(lectures.begin(), lectures.begin() + n, sort1);
+    sort(lectures.begin(), lectures.begin() + n, comp);
 
-    vector<Lecture> good(500002);
-    vector<Lecture> reserve(500002);
+    vector<Lecture> good(MAXN);
+    vector<Lecture> reserve(MAXN);
     good[0] = lectures[0];
     reserve[0] = lectures[1];
 
@@ -83,12 +82,12 @@ int main() {
     int res1 = norm(lectures, n);
     if (res1 > res) {
         cout << res1 << "\n";
-        for(int i = 1; i <= res1; i++){
+        for (int i = 1; i <= res1; i++) {
             cout << ans[i] << " " << ans[0] << "\n";
         }
     } else {
         cout << res << "\n";
-        for(int i = 0; i < res; i++){
+        for (int i = 0; i < res; i++) {
             cout << good[i].index << " " << reserve[i].index << "\n";
         }
     }
