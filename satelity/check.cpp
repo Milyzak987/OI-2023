@@ -62,10 +62,10 @@ void solve() {
   }
   if(ok == false || m > n * n + 2 * n) {
     cout << "I 0/100\n";
-    /*cout << n << " " << p << " " << M << '\n';
+    cout << n << " " << p << " " << M << '\n';
     for(int i = 0; i < p; ++i) {
       cout << kraw[i].first << " " << kraw[i].second << '\n';
-    }*/
+    }
     exit(0);
   }
   if(m > 3 * n) {
@@ -84,7 +84,7 @@ void solve() {
 int main() {
   ios_base::sync_with_stdio(0); cin.tie(0);
   solve();
-  if (wynik==100)
+  if (wynik>=18)
     cout << "C\n";
   else
     cout << "I " << wynik << "/100\n";
