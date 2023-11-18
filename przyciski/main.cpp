@@ -33,7 +33,7 @@ bool isRectanglePossible(int n, vector<pair<int, int>> buttons) {
         }
     }
 
-    return false; // No rectangle found
+    return false;
 }
 
 int main() {
