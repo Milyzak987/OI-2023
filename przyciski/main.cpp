@@ -1,29 +1,34 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-bool isRectanglePossible(int n, vector<pair<int, int>> buttons) {
-    vector<vector<int>> rows, cols;
+const int MAXM = 500007;
+vector<pair<int, int>> buttons(MAXM);
 
-    for (auto b : buttons) {
-        rows[b.first].push_back(b.second);
-        cols[b.second].push_back(b.first);
+bool doesRectangleExist(int n) {
+    vector<vector<int>> rows(n + 1); // Vector to store columns for each row
+    vector<vector<int>> cols(n + 1); // Vector to store rows for each column
+
+    for (int i = 0; i < buttons.size(); ++i) {
+        int x = buttons[i].first;
+        int y = buttons[i].second;
+        rows[x].push_back(y); // Store y-coordinate in x-th row
+        cols[y].push_back(x); // Store x-coordinate in y-th column
     }
 
-    for (auto dot : buttons) {
-        int x = dot.first, y = dot.second;
-
-        for (int y2 : rows[x]) {
-            if (y2 != y) {
-                for (int x2 : cols[y]) {
-                    if (x2 != x) {
-                        for (int y3 : rows[x2]) {
-                            if (y3 != y2 && y3 != y && cols[y3].size() > 1) {
-                                for (int x3 : cols[y3]) {
-                                    if (x3 != x2 && x3 != x && rows[x3].size() > 1) {
-                                        return true;
-                                    }
+    for (int i = 1; i <= n; ++i) {
+        if (rows[i].size() >= 2) {
+            for (int j = 0; j < rows[i].size(); ++j) {
+                for (int k = j + 1; k < rows[i].size(); ++k) {
+                    int col1 = rows[i][j];
+                    int col2 = rows[i][k];
+                    if (cols[col1].size() >= 2 && cols[col2].size() >= 2) {
+                        for (int r1 : cols[col1]) {
+                            for (int r2 : cols[col2]) {
+                                if (r1 != r2 && find(rows[r1].begin(), rows[r1].end(), col2) != rows[r1].end() && find(rows[r2].begin(), rows[r2].end(), col1) != rows[r2].end()) {
+                                    return true;
                                 }
                             }
                         }
@@ -40,16 +45,19 @@ int main() {
     int n, m;
     cin >> n >> m;
 
-    vector<pair<int, int>> buttons(m);
     for (int i = 0; i < m; ++i) {
         int a, b;
         cin >> a >> b;
         buttons[i].first = a;
         buttons[i].second = b;
     }
+    bool result = doesRectangleExist(n);
 
-    if(isRectanglePossible(n, buttons)) cout << "TAK";
-    else cout << "NIE";
-    
+    if (result) {
+        cout << "TAK";
+    } else {
+        cout << "NIE";
+    }
+
     return 0;
 }
