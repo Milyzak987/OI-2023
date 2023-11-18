@@ -1,47 +1,56 @@
 #include <iostream>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
-int main() {
-    int n, m;
-    cin >> n >> m;
+const int MAXM = 500007;
+vector<pair<int, int>> buttons(MAXM);
 
-    unordered_map<int, vector<int>> rows, cols;
+bool doesRectangleExist(int n) {
+    unordered_map<int, unordered_set<int>> rows;
+    unordered_map<int, unordered_set<int>> cols;
 
-    for (int i = 1; i <= m; ++i) {
-        int r, c;
-        cin >> r >> c;
-        rows[r].push_back(i);
-        cols[c].push_back(i);
+    for (auto point : buttons) {
+        int x = point.first;
+        int y = point.second;
+        rows[x].insert(y);
+        cols[y].insert(x);
     }
 
-    for (const auto& row : rows) {
-        if (row.second.size() >= 4) {
-            for (const auto& col : cols) {
-                if (col.second.size() >= 4) {
-                    unordered_map<int, int> dotCount;
-
-                    for (int dot : row.second) {
-                        dotCount[dot]++;
-                    }
-
-                    for (int dot : col.second) {
-                        if (dotCount[dot] > 0) {
-                            dotCount[dot]--;
-                            if (dotCount[dot] >= 3) {
-                                cout << "YES\n";
-                                cout << row.second[0] << " " << row.second[1] << " " << row.second[2] << " " << dot << endl;
-                                return 0;
-                            }
-                        }
+    for (auto row : rows) {
+        if (row.second.size() >= 2) {
+            for (int col1 : row.second) {
+                for (int col2 : row.second) {
+                    if (col1 != col2 && cols[col1].count(col2) && cols[col2].count(col1)) {
+                        return true;
                     }
                 }
             }
         }
     }
 
-    cout << "NO\n";
+    return false;
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+
+    for (int i = 0; i < m; ++i) {
+        int a, b;
+        cin >> a >> b;
+        buttons[i].first = a;
+        buttons[i].second = b;
+    }
+    bool result = doesRectangleExist(n);
+
+    if (result) {
+        cout << "TAK";
+    } else {
+        cout << "NIE";
+    }
+
     return 0;
 }
