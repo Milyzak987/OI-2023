@@ -8,59 +8,16 @@ using namespace std;
 const int MOD = 1e9 + 7;
 const int BASE = 131;
 
-vector<long long> powers;
-vector<long long> prefixHashes;
-
-void precomputePowers(int n) {
-    powers.resize(n + 1);
-    powers[0] = 1;
-    for (int i = 1; i <= n; ++i) {
-        powers[i] = (powers[i - 1] * BASE) % MOD;
-    }
-}
-
-void computePrefixHashes(const string& S) {
-    int n = S.length();
-    prefixHashes.resize(n + 1);
-    prefixHashes[0] = 0;
-    for (int i = 0; i < n; ++i) {
-        prefixHashes[i + 1] = (prefixHashes[i] * BASE + (S[i] - 'a' + 1)) % MOD;
-    }
-}
-
-long long getSubstringHash(int left, int right) {
-    return (prefixHashes[right + 1] - (prefixHashes[left] * powers[right - left + 1]) % MOD + MOD) % MOD;
-}
-
-char findMostFrequentChar(const string& S, int k) {
-    unordered_map<long long, vector<char>> suffixCounts;
-    long long hashR = getSubstringHash(S.length() - k, S.length() - 1);
-
-    for (int i = 0; i + k < S.length(); ++i) {
-        long long curHash = getSubstringHash(i, i + k - 1);
-        char nextChar = S[i + k];
-        suffixCounts[curHash].push_back(nextChar);
-    }
-
-    if (suffixCounts.find(hashR) == suffixCounts.end()) {
-        return 'a'; // Jeśli R nie wystąpiło nigdzie indziej, przyjmujemy c = a
-    }
-
-    const vector<char>& charsAfterR = suffixCounts[hashR];
-    unordered_map<char, int> charCount;
-
-    int maxCount = 0;
-    char mostFrequentChar = 'a';
-
-    for (char c : charsAfterR) {
-        charCount[c]++;
-        if (charCount[c] > maxCount || (charCount[c] == maxCount && c < mostFrequentChar)) {
-            maxCount = charCount[c];
-            mostFrequentChar = c;
+long long pow_mod(int base, int exp) {
+    long long result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % MOD;
         }
+        base = (base * base) % MOD;
+        exp /= 2;
     }
-
-    return mostFrequentChar;
+    return result;
 }
 
 int main() {
@@ -70,17 +27,44 @@ int main() {
     string S;
     cin >> S;
 
-    precomputePowers(max(n, k));
-
-    computePrefixHashes(S);
-
-    string extendedWord = S;
-    for (int i = n; i <= b; ++i) {
-        char mostFrequentChar = findMostFrequentChar(extendedWord, k);
-        extendedWord += mostFrequentChar;
+    vector<long long> power(n + 1);
+    power[0] = 1;
+    for (int i = 1; i <= n; ++i) {
+        power[i] = (power[i - 1] * BASE) % MOD;
     }
 
-    cout << extendedWord.substr(a - 1, b - a + 1) << endl;
+    unordered_map<long long, int> occurrences;
+    long long hash_value = 0;
+    for (int i = 0; i < n; ++i) {
+        hash_value = (hash_value * BASE + S[i]) % MOD;
+    }
+
+    occurrences[hash_value]++;
+    char most_common = S[n - k - 1];
+
+    for (int i = n; i < b; ++i) {
+        char new_char = most_common;
+
+        hash_value = (hash_value * BASE + new_char) % MOD;
+        hash_value = (hash_value - (power[n] * S[i - n]) % MOD + MOD) % MOD;
+        S.push_back(new_char);
+
+        if (occurrences.find(hash_value) != occurrences.end()) {
+            int count = occurrences[hash_value];
+            if (new_char == most_common || count > occurrences[most_common]) {
+                most_common = new_char;
+            }
+        } else {
+            most_common = 'a';
+        }
+
+        occurrences[hash_value]++;
+    }
+
+    for (int i = a - 1; i < b; ++i) {
+        cout << S[i];
+    }
+    cout << endl;
 
     return 0;
 }

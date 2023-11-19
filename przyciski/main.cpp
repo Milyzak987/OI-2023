@@ -1,21 +1,45 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
 const int MAXM = 500007;
 vector<pair<int, int>> buttons(MAXM);
 
-bool doesRectangleExist(int n) {
-    vector<vector<int>> rows(n + 1); // Vector to store columns for each row
-    vector<vector<int>> cols(n + 1); // Vector to store rows for each column
+bool odd(int n, int m, vector<pair<int, int>>& dots) {
+    vector<int> rows(n, 0), cols(n, 0);
 
-    for (int i = 0; i < buttons.size(); ++i) {
+    for (int i = 0; i < m; i++) {
+        auto dot = dots[i];
+        rows[dot.first - 1]++;
+        cols[dot.second - 1]++;
+    }
+
+    sort(rows.begin(), rows.end());
+    sort(cols.begin(), cols.end());
+
+    if (n % 2 == 1 && rows[0] == n && cols[0] == n) {
+        return true;
+    }
+    for (int i = 0; i < n; ++i) {
+        if (rows[i] != cols[i] || rows[i] == 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool even(int n, int m) {
+    vector<vector<int>> rows(n + 1);
+    vector<vector<int>> cols(n + 1);
+
+    for (int i = 0; i < m; ++i) {
         int x = buttons[i].first;
         int y = buttons[i].second;
-        rows[x].push_back(y); // Store y-coordinate in x-th row
-        cols[y].push_back(x); // Store x-coordinate in y-th column
+        rows[x].push_back(y);
+        cols[y].push_back(x);
     }
 
     for (int i = 1; i <= n; ++i) {
@@ -51,7 +75,7 @@ int main() {
         buttons[i].first = a;
         buttons[i].second = b;
     }
-    bool result = doesRectangleExist(n);
+    bool result = (even(n, m) || odd(n, m, buttons));
 
     if (result) {
         cout << "TAK";

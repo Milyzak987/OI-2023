@@ -11,7 +11,6 @@ int main() {
     vector<vector<int>> graph(2007);
     int n, p, m;
     cin >> n >> p >> m;
-    m = n+1;
     for (int i = 0; i < p; i++) {
         int a, b;
         cin >> a >> b;
