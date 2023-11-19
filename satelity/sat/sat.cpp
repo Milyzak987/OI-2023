@@ -1,3 +1,4 @@
+// przykladowa bledna implementacja 
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -6,21 +7,21 @@ using namespace std;
 
 int n, p, m;
 
-string decToBin(int dec) {
+string decToBin(int decimalNumber) {
     string binary = string(m-n-1, 'B');
 
     int i = 0;
-    while (dec > 0) {
-        binary[i] = ((dec % 2) == 0 ? 'B' : 'C'); 
-        dec /= 2;
+    while (decimalNumber > 0) {
+        binary[i] = ((decimalNumber % 2) == 0 ? 'B' : 'C'); 
+        decimalNumber /= 2;
         i++;
     }
     return binary;
 }
 
-int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
+void solve() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
 
     vector<string> satelites(2007);
     vector<vector<int>> graph(2007);
@@ -51,4 +52,11 @@ int main() {
     for (int i = 0; i < 2 * n; i++) {
         cout << satelites[i] << "\n";
     }
+}
+int main() {
+  int test_cases = 1;
+  cin >> test_cases;
+  while(test_cases--) {
+    solve();
+  }
 }

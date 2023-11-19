@@ -1,6 +1,6 @@
-// Created by Adam Gąsienica-Samek, adjusted for Toster by Olaf Targowski
 #include<bits/stdc++.h>
 using namespace std;
+ifstream fin("out");
 string S[2000];
 int T[1000][1000], wynik = 100, m;
 pair<int,int> kraw[1000000];
@@ -36,10 +36,10 @@ void solve() {
     T[a][b] = 1;
   }
   bool ok = true;
-  cin >> m;
+  fin >> m;
   for(int i = 0; i < 2 * n; ++i) {
-    cin >> S[i];
-    if(int(S[i].size()) != m) {
+    fin >> S[i];
+    if(S[i].size() != m) {
       ok = false;
     }
     for(int j = 0; j < m; ++j) {
@@ -61,7 +61,7 @@ void solve() {
     }
   }
   if(ok == false || m > n * n + 2 * n) {
-    cout << "I 0/100\n";
+    cout << "0/100\n";
     cout << n << " " << p << " " << M << '\n';
     for(int i = 0; i < p; ++i) {
       cout << kraw[i].first << " " << kraw[i].second << '\n';
@@ -83,9 +83,10 @@ void solve() {
 }
 int main() {
   ios_base::sync_with_stdio(0); cin.tie(0);
-  solve();
-  if (wynik>=41)
-    cout << "C\n";
-  else
-    cout << "I " << wynik << "/100\n";
+  int test_cases;
+  cin >> test_cases;
+  while(test_cases--) {
+    solve();
+  }
+  cout << wynik << "/100\n";
 }
