@@ -1,82 +1,80 @@
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
-const int MAXM = 500007;
-vector<pair<int, int>> buttons(MAXM);
-
-bool odd(int n, int m, vector<pair<int, int>>& dots) {
+bool odd(int n, const vector<pair<int, int>>& buttons) {
     vector<int> rows(n, 0), cols(n, 0);
-
-    for (int i = 0; i < m; i++) {
-        auto dot = dots[i];
-        rows[dot.first - 1]++;
-        cols[dot.second - 1]++;
+    
+    for (const auto& button : buttons) {
+        int r = button.first - 1;
+        int c = button.second - 1;
+        rows[r]++;
+        cols[c]++;
     }
-
+    
     sort(rows.begin(), rows.end());
     sort(cols.begin(), cols.end());
-
-    if (n % 2 == 1 && rows[0] == n && cols[0] == n) {
-        return true;
+    
+    if (rows[0] == 0 || rows[n - 1] == n || cols[0] == 0 || cols[n - 1] == n) {
+        return false;
     }
-    for (int i = 0; i < n; ++i) {
-        if (rows[i] != cols[i] || rows[i] == 0) {
-            return false;
-        }
-    }
-
+    
     return true;
 }
 
-bool even(int n, int m) {
-    vector<vector<int>> rows(n + 1);
-    vector<vector<int>> cols(n + 1);
+bool odd1(int n, const vector<pair<int, int>>& buttons) {
+    unordered_set<int> rows, cols;
 
-    for (int i = 0; i < m; ++i) {
-        int x = buttons[i].first;
-        int y = buttons[i].second;
-        rows[x].push_back(y);
-        cols[y].push_back(x);
+    for (const auto& button : buttons) {
+        rows.insert(button.first);
+        cols.insert(button.second);
     }
 
-    for (int i = 1; i <= n; ++i) {
-        if (rows[i].size() >= 2) {
-            for (int j = 0; j < rows[i].size(); ++j) {
-                for (int k = j + 1; k < rows[i].size(); ++k) {
-                    int col1 = rows[i][j];
-                    int col2 = rows[i][k];
-                    if (cols[col1].size() >= 2 && cols[col2].size() >= 2) {
-                        for (int r1 : cols[col1]) {
-                            for (int r2 : cols[col2]) {
-                                if (r1 != r2 && find(rows[r1].begin(), rows[r1].end(), col2) != rows[r1].end() && find(rows[r2].begin(), rows[r2].end(), col1) != rows[r2].end()) {
-                                    return true;
-                                }
-                            }
+    return rows.size() == n && cols.size() == n;
+}
+
+bool even(int n, const vector<pair<int, int>>& buttons) {
+    unordered_map<int, vector<int>> rows, cols;
+    for (const auto& button : buttons) {
+        rows[button.first].push_back(button.second);
+        cols[button.second].push_back(button.first);
+    }
+
+    for (const auto& row : rows) {
+        const vector<int>& colsInRow = row.second;
+        for (size_t i = 0; i < colsInRow.size(); ++i) {
+            for (size_t j = i + 1; j < colsInRow.size(); ++j) {
+                int col1 = colsInRow[i], col2 = colsInRow[j];
+                for (const int& otherRow : cols[col1]) {
+                    if (otherRow != row.first) {
+                        auto it = find(cols[col2].begin(), cols[col2].end(), otherRow);
+                        if (it != cols[col2].end()) {
+                            return true;
                         }
                     }
                 }
             }
         }
     }
-
     return false;
 }
 
 int main() {
     int n, m;
     cin >> n >> m;
-
+    vector<pair<int, int>> buttons(m);
     for (int i = 0; i < m; ++i) {
         int a, b;
         cin >> a >> b;
         buttons[i].first = a;
         buttons[i].second = b;
     }
-    bool result = (even(n, m) || odd(n, m, buttons));
-
+    
+    bool result = (even(n, buttons) || odd1(n, buttons) || odd(n, buttons));
     if (result) {
         cout << "TAK";
     } else {
