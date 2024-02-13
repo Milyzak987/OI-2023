@@ -1,70 +1,81 @@
+#include <algorithm>
 #include <iostream>
-#include <vector>
 #include <unordered_map>
-#include <cmath>
-
+#include <unordered_set>
+#include <vector>
 using namespace std;
 
-const int MOD = 1e9 + 7;
-const int BASE = 131;
+vector<int> v(5000, 0);
 
-long long pow_mod(int base, int exp) {
-    long long result = 1;
-    while (exp > 0) {
-        if (exp % 2 == 1) {
-            result = (result * base) % MOD;
-        }
-        base = (base * base) % MOD;
-        exp /= 2;
+bool odd(int n, const vector<pair<int, int>>& buttons) {
+    vector<int> rows(n, 0), cols(n, 0);
+
+    for (const auto& button : buttons) {
+        int r = button.first - 1;
+        int c = button.second - 1;
+        rows[r]++;
+        cols[c]++;
     }
-    return result;
+
+    sort(rows.begin(), rows.end());
+    sort(cols.begin(), cols.end());
+
+    if (rows[0] == 0 || rows[n - 1] == n || cols[0] == 0 || cols[n - 1] == n) {
+        return false;
+    }
+
+    return true;
+}
+
+bool odd1(int n, const vector<pair<int, int>>& buttons) {
+    unordered_set<int> rows, cols;
+
+    for (const auto& button : buttons) {
+        rows.insert(button.first);
+        cols.insert(button.second);
+    }
+
+    return rows.size() == n && cols.size() == n;
+}
+
+bool even(int n, const vector<pair<int, int>>& buttons) {
+    unordered_map<int, vector<int>> rows, cols;
+    for (const auto& button : buttons) {
+        rows[button.first].push_back(button.second);
+        cols[button.second].push_back(button.first);
+    }
+
+    for (const auto& row : rows) {
+        const vector<int>& colsInRow = row.second;
+        for (size_t i = 0; i < colsInRow.size(); ++i) {
+            for (size_t j = i + 1; j < colsInRow.size(); ++j) {
+                int col1 = colsInRow[i], col2 = colsInRow[j];
+                for (const int& otherRow : cols[col1]) {
+                    if (otherRow != row.first) {
+                        auto it = find(cols[col2].begin(), cols[col2].end(), otherRow);
+                        if (it != cols[col2].end()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 int main() {
-    int n, k, a, b;
-    cin >> n >> k >> a >> b;
+    int n;
+    cin >> n;
 
-    string S;
-    cin >> S;
-
-    vector<long long> power(n + 1);
-    power[0] = 1;
-    for (int i = 1; i <= n; ++i) {
-        power[i] = (power[i - 1] * BASE) % MOD;
+    for (int i = 0; i < n; i++) {
+        int a;
+        cin >> a;
+        v[i] += a;
+        v[i + 1] += a;
     }
-
-    unordered_map<long long, int> occurrences;
-    long long hash_value = 0;
-    for (int i = 0; i < n; ++i) {
-        hash_value = (hash_value * BASE + S[i]) % MOD;
+    cout << n;
+    for (int i = 0; i <= n; i++) {
+        cout << v[i] << " ";
     }
-
-    occurrences[hash_value]++;
-    char most_common = S[n - k - 1];
-
-    for (int i = n; i < b; ++i) {
-        char new_char = most_common;
-
-        hash_value = (hash_value * BASE + new_char) % MOD;
-        hash_value = (hash_value - (power[n] * S[i - n]) % MOD + MOD) % MOD;
-        S.push_back(new_char);
-
-        if (occurrences.find(hash_value) != occurrences.end()) {
-            int count = occurrences[hash_value];
-            if (new_char == most_common || count > occurrences[most_common]) {
-                most_common = new_char;
-            }
-        } else {
-            most_common = 'a';
-        }
-
-        occurrences[hash_value]++;
-    }
-
-    for (int i = a - 1; i < b; ++i) {
-        cout << S[i];
-    }
-    cout << endl;
-
-    return 0;
 }
