@@ -16,6 +16,17 @@ bool odd(int n, const vector<pair<int, int>>& buttons) {
         cols[c]++;
     }
     
+    int maxr, maxc;
+    for(int i = 0; i < n; i++){
+        if(maxr == 0 || maxc == 0) return false;
+        maxr = max(rows[i], maxr);
+        maxc = max(rows[i], maxc);
+    }
+
+    if(maxr == n && maxc == n){
+        return true;
+    }
+
     sort(rows.begin(), rows.end());
     sort(cols.begin(), cols.end());
     

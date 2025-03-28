@@ -5,64 +5,59 @@
 
 using namespace std;
 
-const int MOD = 1e9 + 7;
-const int BASE = 131;
+const int p = 31; // wartość pierwsza dla hashy
+const int m = 1e9 + 9; // modulo
 
-long long pow_mod(int base, int exp) {
-    long long result = 1;
-    while (exp > 0) {
-        if (exp % 2 == 1) {
-            result = (result * base) % MOD;
-        }
-        base = (base * base) % MOD;
-        exp /= 2;
+// Funkcja do obliczania hashy dla słowa
+vector<long long> computeHash(const string& s) {
+    int n = s.length();
+    vector<long long> hash(n + 1, 0);
+    vector<long long> power(n + 1, 0);
+    power[0] = 1;
+
+    for (int i = 0; i < n; ++i) {
+        hash[i + 1] = (hash[i] + (s[i] - 'a' + 1) * power[i]) % m;
+        power[i + 1] = (power[i] * p) % m;
     }
-    return result;
+
+    return hash;
+}
+
+// Funkcja do obliczania hasha dla danego przedziału [l, r] w słowie s
+long long getHash(const vector<long long>& hash, const vector<long long>& power, int l, int r) {
+    return (hash[r + 1] - hash[l] + m) % m * power[hash.size() - l - 1] % m;
 }
 
 int main() {
     int n, k, a, b;
     cin >> n >> k >> a >> b;
+    string s;
+    cin >> s;
 
-    string S;
-    cin >> S;
+    vector<long long> hashes = computeHash(s);
 
-    vector<long long> power(n + 1);
-    power[0] = 1;
-    for (int i = 1; i <= n; ++i) {
-        power[i] = (power[i - 1] * BASE) % MOD;
-    }
+    unordered_map<long long, char> mostFrequentLetter;
 
-    unordered_map<long long, int> occurrences;
-    long long hash_value = 0;
-    for (int i = 0; i < n; ++i) {
-        hash_value = (hash_value * BASE + S[i]) % MOD;
-    }
+    // Szukanie sufiksów i zliczanie liter
+    for (int i = n - k; i < n; ++i) {
+        long long sufHash = getHash(hashes, hashes, i - k + 1, i);
+        char nextChar = (i == n - 1) ? 'a' : s[i + 1];
 
-    occurrences[hash_value]++;
-    char most_common = S[n - k - 1];
-
-    for (int i = n; i < b; ++i) {
-        char new_char = most_common;
-
-        hash_value = (hash_value * BASE + new_char) % MOD;
-        hash_value = (hash_value - (power[n] * S[i - n]) % MOD + MOD) % MOD;
-        S.push_back(new_char);
-
-        if (occurrences.find(hash_value) != occurrences.end()) {
-            int count = occurrences[hash_value];
-            if (new_char == most_common || count > occurrences[most_common]) {
-                most_common = new_char;
-            }
-        } else {
-            most_common = 'a';
+        if (mostFrequentLetter.find(sufHash) == mostFrequentLetter.end() || mostFrequentLetter[sufHash] <= nextChar) {
+            mostFrequentLetter[sufHash] = nextChar;
         }
-
-        occurrences[hash_value]++;
     }
 
-    for (int i = a - 1; i < b; ++i) {
-        cout << S[i];
+    // Rozszerzenie słowa S′
+    string extendedWord = s;
+    for (int i = 0; i < b - n + 1; ++i) {
+        long long sufHash = getHash(hashes, hashes, extendedWord.length() - k, extendedWord.length() - 1);
+        extendedWord += mostFrequentLetter[sufHash];
+    }
+
+    // Wypisanie literek na odpowiednich pozycjach
+    for (int i = a - 1; i <= b - 1; ++i) {
+        cout << extendedWord[i];
     }
     cout << endl;
 
